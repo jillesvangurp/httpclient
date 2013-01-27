@@ -73,6 +73,7 @@ public class HttpAsyncClientWithFuture {
 
     /**
      * Schedule a request for execution.
+     *
      * @param <T>
      *
      * @param request
@@ -88,6 +89,7 @@ public class HttpAsyncClientWithFuture {
 
     /**
      * Schedule a request for execution.
+     *
      * @param <T>
      *
      * @param request
@@ -108,7 +110,7 @@ public class HttpAsyncClientWithFuture {
         HttpAsyncClientCallable<T> callable = new HttpAsyncClientCallable<T>(httpclient, request, context, responseHandler, callback, metrics);
         HttpAsyncClientFutureTask<T> httpRequestFutureTask = new HttpAsyncClientFutureTask<T>(request, callable);
         executorService.execute(httpRequestFutureTask);
-        if(callback !=null) {
+        if (callback != null) {
             callback.scheduled(request);
         }
         return httpRequestFutureTask;
@@ -116,6 +118,7 @@ public class HttpAsyncClientWithFuture {
 
     /**
      * Schedule multiple requests for execution.
+     *
      * @param <T>
      *
      * @param responseHandler
@@ -131,6 +134,7 @@ public class HttpAsyncClientWithFuture {
 
     /**
      * Schedule multiple requests for execution with a timeout.
+     *
      * @param <T>
      *
      * @param context
@@ -154,7 +158,7 @@ public class HttpAsyncClientWithFuture {
         for (HttpUriRequest request : requests) {
             HttpAsyncClientCallable<T> callable = new HttpAsyncClientCallable<T>(httpclient, request, context, responseHandler, callback, metrics);
             callables.add(callable);
-            if(callback != null) {
+            if (callback != null) {
                 callback.scheduled(request);
             }
         }

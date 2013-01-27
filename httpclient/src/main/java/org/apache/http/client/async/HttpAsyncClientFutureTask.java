@@ -47,7 +47,8 @@ public class HttpAsyncClientFutureTask<V> extends FutureTask<V> {
         this.callable = httpCallable;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.util.concurrent.FutureTask#cancel(boolean)
      */
     @Override
@@ -77,7 +78,7 @@ public class HttpAsyncClientFutureTask<V> extends FutureTask<V> {
      * @return the time in millis the task was finished/cancelled.
      */
     public long endedTime() {
-        if(isDone()) {
+        if (isDone()) {
             return callable.ended;
         } else {
             throw new IllegalStateException("Task is not done yet");
@@ -88,7 +89,7 @@ public class HttpAsyncClientFutureTask<V> extends FutureTask<V> {
      * @return the time in millis it took to make the request (excluding the time it was scheduled to be executed).
      */
     public long requestDuration() {
-        if(isDone()) {
+        if (isDone()) {
             return endedTime() - startedTime();
         } else {
             throw new IllegalStateException("Task is not done yet");
@@ -99,7 +100,7 @@ public class HttpAsyncClientFutureTask<V> extends FutureTask<V> {
      * @return the time in millis it took to execute the task from the moment it was scheduled.
      */
     public long taskDuration() {
-        if(isDone()) {
+        if (isDone()) {
             return endedTime() - scheduledTime();
         } else {
             throw new IllegalStateException("Task is not done yet");

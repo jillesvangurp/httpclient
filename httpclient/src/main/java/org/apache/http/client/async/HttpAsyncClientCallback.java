@@ -45,13 +45,15 @@ public interface HttpAsyncClientCallback<T> {
 
     /**
      * Called when the request task starts executing.
+     *
      * @param request
      * @param result
      */
-    void completed(HttpUriRequest request,T result);
+    void completed(HttpUriRequest request, T result);
 
     /**
      * Called when the request has failed with an exception.
+     *
      * @param request
      * @param ex
      */
@@ -59,6 +61,7 @@ public interface HttpAsyncClientCallback<T> {
 
     /**
      * Called when the request was cancelled.
+     *
      * @param request
      */
     void cancelled(HttpUriRequest request);

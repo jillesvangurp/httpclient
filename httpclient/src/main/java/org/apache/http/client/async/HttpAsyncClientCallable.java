@@ -35,10 +35,12 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.protocol.HttpContext;
 
 /**
- * Implementation of Callable that is wrapped with a {@link HttpAsyncClientFutureTask} by {@link HttpAsyncClientWithFuture}. The callable orchestrates the
- * invocation of httpclient.execute and callbacks in {@link HttpAsyncClientCallback}.
+ * Implementation of Callable that is wrapped with a {@link HttpAsyncClientFutureTask} by
+ * {@link HttpAsyncClientWithFuture}. The callable orchestrates the invocation of httpclient.execute and callbacks in
+ * {@link HttpAsyncClientCallback}.
  *
- * @param <V> type returned by the responseHandler
+ * @param <V>
+ *            type returned by the responseHandler
  */
 final class HttpAsyncClientCallable<V> implements Callable<V> {
 
@@ -58,7 +60,8 @@ final class HttpAsyncClientCallable<V> implements Callable<V> {
 
     private final ConnectionMetrics metrics;
 
-    HttpAsyncClientCallable(HttpClient httpClient, HttpUriRequest request, HttpContext context, ResponseHandler<V> responseHandler, HttpAsyncClientCallback<V> callback, ConnectionMetrics metrics) {
+    HttpAsyncClientCallable(HttpClient httpClient, HttpUriRequest request, HttpContext context, ResponseHandler<V> responseHandler,
+            HttpAsyncClientCallback<V> callback, ConnectionMetrics metrics) {
         this.httpclient = httpClient;
         this.responseHandler = responseHandler;
         this.request = request;
@@ -67,31 +70,32 @@ final class HttpAsyncClientCallable<V> implements Callable<V> {
         this.metrics = metrics;
     }
 
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.Callable#call()
-	 */
-	public V call() throws Exception {
+    /*
+     * (non-Javadoc)
+     * @see java.util.concurrent.Callable#call()
+     */
+    public V call() throws Exception {
         if (!cancelled.get()) {
             try {
                 metrics.activeConnections.incrementAndGet();
                 started = System.currentTimeMillis();
                 try {
-                    if(callback!=null) {
+                    if (callback != null) {
                         callback.started(request);
                     }
                     metrics.scheduledConnections.decrementAndGet();
                     V result = httpclient.execute(request, responseHandler, context);
                     ended = System.currentTimeMillis();
                     metrics.successfulConnections.increment(started);
-                    if(callback!=null) {
-                        callback.completed(request,result);
+                    if (callback != null) {
+                        callback.completed(request, result);
                     }
                     return result;
                 } catch (Exception e) {
                     metrics.failedConnections.increment(started);
                     ended = System.currentTimeMillis();
-                    if(callback!=null) {
-                        callback.failed(request,e);
+                    if (callback != null) {
+                        callback.failed(request, e);
                     }
                     throw e;
                 }
@@ -105,10 +109,10 @@ final class HttpAsyncClientCallable<V> implements Callable<V> {
         }
     }
 
-	public void cancel() {
-	    cancelled.set(true);
-        if(callback!=null) {
+    public void cancel() {
+        cancelled.set(true);
+        if (callback != null) {
             callback.cancelled(request);
         }
-	}
+    }
 }

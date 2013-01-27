@@ -88,7 +88,7 @@ public class ConnectionMetrics {
 
         public long averageDuration() {
             long counter = count.get();
-            return cumulativeDuration.get()/counter;
+            return cumulativeDuration.get() / counter;
         }
     }
 }
