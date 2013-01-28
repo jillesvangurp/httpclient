@@ -37,6 +37,7 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -105,14 +106,12 @@ public class HttpAsyncClientWithFuture {
      * @throws InterruptedException
      */
     public <T> HttpAsyncClientFutureTask<T> execute(HttpUriRequest request, HttpContext context, ResponseHandler<T> responseHandler,
-            HttpAsyncClientCallback<T> callback) throws InterruptedException {
+            FutureCallback<T> callback) throws InterruptedException {
         metrics.scheduledConnections.incrementAndGet();
         HttpAsyncClientCallable<T> callable = new HttpAsyncClientCallable<T>(httpclient, request, context, responseHandler, callback, metrics);
         HttpAsyncClientFutureTask<T> httpRequestFutureTask = new HttpAsyncClientFutureTask<T>(request, callable);
         executorService.execute(httpRequestFutureTask);
-        if (callback != null) {
-            callback.scheduled(request);
-        }
+
         return httpRequestFutureTask;
     }
 
@@ -151,16 +150,13 @@ public class HttpAsyncClientWithFuture {
      * @return a list of HttpAsyncClientFutureTask for the scheduled requests.
      * @throws InterruptedException
      */
-    public <T> List<Future<T>> executeMultiple(HttpContext context, ResponseHandler<T> responseHandler, HttpAsyncClientCallback<T> callback, long timeout,
+    public <T> List<Future<T>> executeMultiple(HttpContext context, ResponseHandler<T> responseHandler, FutureCallback<T> callback, long timeout,
             TimeUnit timeUnit, HttpUriRequest... requests) throws InterruptedException {
         metrics.scheduledConnections.incrementAndGet();
         List<Callable<T>> callables = new ArrayList<Callable<T>>();
         for (HttpUriRequest request : requests) {
             HttpAsyncClientCallable<T> callable = new HttpAsyncClientCallable<T>(httpclient, request, context, responseHandler, callback, metrics);
             callables.add(callable);
-            if (callback != null) {
-                callback.scheduled(request);
-            }
         }
         if (timeout > 0) {
             return executorService.invokeAll(callables, timeout, timeUnit);

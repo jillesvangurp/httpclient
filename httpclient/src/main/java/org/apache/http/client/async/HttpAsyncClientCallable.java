@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -56,12 +57,12 @@ final class HttpAsyncClientCallable<V> implements Callable<V> {
 
     private final HttpContext context;
     private final ResponseHandler<V> responseHandler;
-    private final HttpAsyncClientCallback<V> callback;
+    private final FutureCallback<V> callback;
 
     private final ConnectionMetrics metrics;
 
     HttpAsyncClientCallable(HttpClient httpClient, HttpUriRequest request, HttpContext context, ResponseHandler<V> responseHandler,
-            HttpAsyncClientCallback<V> callback, ConnectionMetrics metrics) {
+            FutureCallback<V> callback, ConnectionMetrics metrics) {
         this.httpclient = httpClient;
         this.responseHandler = responseHandler;
         this.request = request;
@@ -80,22 +81,19 @@ final class HttpAsyncClientCallable<V> implements Callable<V> {
                 metrics.activeConnections.incrementAndGet();
                 started = System.currentTimeMillis();
                 try {
-                    if (callback != null) {
-                        callback.started(request);
-                    }
                     metrics.scheduledConnections.decrementAndGet();
                     V result = httpclient.execute(request, responseHandler, context);
                     ended = System.currentTimeMillis();
                     metrics.successfulConnections.increment(started);
                     if (callback != null) {
-                        callback.completed(request, result);
+                        callback.completed(result);
                     }
                     return result;
                 } catch (Exception e) {
                     metrics.failedConnections.increment(started);
                     ended = System.currentTimeMillis();
                     if (callback != null) {
-                        callback.failed(request, e);
+                        callback.failed(e);
                     }
                     throw e;
                 }
@@ -112,7 +110,7 @@ final class HttpAsyncClientCallable<V> implements Callable<V> {
     public void cancel() {
         cancelled.set(true);
         if (callback != null) {
-            callback.cancelled(request);
+            callback.cancelled();
         }
     }
 }

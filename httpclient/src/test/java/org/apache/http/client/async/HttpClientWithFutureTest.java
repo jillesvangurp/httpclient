@@ -41,7 +41,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.localserver.LocalTestServer;
@@ -134,38 +134,26 @@ public class HttpClientWithFutureTest {
         }
         CountingCallback callback = new CountingCallback();
         httpAsyncClientWithFuture.executeMultiple(null, new OkidokiHandler(), callback , 1000, TimeUnit.MILLISECONDS, requests);
-        Assert.assertEquals(100, callback.scheduled);
-        Assert.assertEquals(100, callback.started);
         Assert.assertEquals(100, callback.completed);
         Assert.assertEquals(0, callback.cancelled);
         Assert.assertEquals(0, callback.failed);
     }
 
 
-    private final class CountingCallback implements HttpAsyncClientCallback<Boolean> {
-        int scheduled=0;
-        int started=0;
+    private final class CountingCallback implements FutureCallback<Boolean> {
         int failed=0;
         int cancelled=0;
         int completed=0;
 
-        public void started(HttpUriRequest request) {
-            started++;
-        }
-
-        public void scheduled(HttpUriRequest request) {
-            scheduled++;
-        }
-
-        public void failed(HttpUriRequest request, Exception ex) {
+        public void failed(Exception ex) {
             failed++;
         }
 
-        public void completed(HttpUriRequest request, Boolean result) {
+        public void completed(Boolean result) {
             completed++;
         }
 
-        public void cancelled(HttpUriRequest request) {
+        public void cancelled() {
             cancelled++;
         }
     }
