@@ -145,7 +145,7 @@ public class HttpClientWithFutureTest {
         }
         final CountingCallback callback = new CountingCallback();
         httpAsyncClientWithFuture.executeMultiple(null,
-            new OkidokiHandler(), callback , 1000, TimeUnit.MILLISECONDS, requests);
+            new OkidokiHandler(), callback , 10000, TimeUnit.MILLISECONDS, requests);
         Assert.assertEquals(100, callback.completed);
         Assert.assertEquals(0, callback.cancelled);
         Assert.assertEquals(0, callback.failed);
